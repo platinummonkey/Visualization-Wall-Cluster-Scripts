@@ -84,6 +84,8 @@ if [  "$ORIG_DIM" != "$REQUIRED_DIMENSIONS" -o "$ORIG_RES_X" != "$REQUIRED_RESOL
   exit 1
 fi
 
+echo "Image Size must be: $REQUIRED_DIMENSIONS with a X and Y DPI of $REQUIRED_RESOLUTION"
+
 #create nemo image
 # this will scale the image based on smallest fitting dimension
 convert $ORIG_IMAGE -resize ${HEADNODE_RESOLUTION}^ -gravity center ${BACKGROUND_DIRECTORY}/${BASEFNAME}.jpg
