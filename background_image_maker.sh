@@ -12,8 +12,6 @@ MONITORS_PER_ROW=6
 MONITORS_PER_COL=4
 HOSTS_FILE="$BACKGROUND_DIRECTORY/hosts.list"
 
-echo $HOSTS_FILE
-
 ### DONT TOUCH BELOW ###
 #check for arugments
 if [ $# -ne 1 ]; then
@@ -33,13 +31,12 @@ ORIG_IMAGE="`readlink -f $1`" # gets full un-ugly path
 DIR="`dirname $ORIG_IMAGE`" # gets base path
 # get just filename without .orig and without suffix or path prefix
 BASEFNAME="`echo $ORIG_IMAGE | sed 's/.orig//' | sed 's|.*\/\([^\.]*\)\(\..*\)$|\1|g'`"
-#BASEFNAME="`echo $ORIG_IMAGE | sed 's/.orig//' | sed 's/\(.*\)\..*/\1/'`"
 
 #final tiled directory
 DIR="${TILES_BACKGROUND_DIRECTORY}/${BASEFNAME}"
 mkdir -p $DIR
 
-echo $BASEFNAME
+echo "Generating Background: $BASEFNAME"
 
 #confirm input file is good
 ORIG_DIM="`identify -format '%wx%h' $ORIG_IMAGE`"
@@ -49,7 +46,7 @@ ORIG_RES_Y="`identify -format '%y' $ORIG_IMAGE | awk '{ print $1 }'`"
 # Read sage Config and get chopping block size
 Machines="`cat $SAGE_STDTILECONF |  grep Machines | grep -v \# | awk '{ print $2 }'`"
 Monitors="`cat $SAGE_STDTILECONF |  grep Monitors | grep -v \# | line | awk '{ print $2 }'`"
-echo "Machines: $Machines - Monitors: $Monitors"
+#echo "Machines: $Machines - Monitors: $Monitors"
 # Expected: Mullions top bottom left right
 # Example: Mullions 1.1024 1.1024 1.1024 1.1014
 Mullions="`cat $SAGE_STDTILECONF |  grep Mullions | grep -v top`"
@@ -67,7 +64,7 @@ CLEF="`echo \"($MLEF * $DPI)\" | bc -l  | xargs printf \"%1.0f\"`"
 CV="`echo \"$CTOP + $CBOT\" | bc -l`"
 CH="`echo \"$CRIG + $CLEF\" | bc -l`"
 
-echo $CTOP $CBOT $CRIG $CLEF $CV $CH
+#echo $CTOP $CBOT $CRIG $CLEF $CV $CH
 
 # determine required input image size
 REQUIRED_DIMENSION_W="`echo \"($CLEF + $CRIG + $TILENODE_MONDIM_W) * $MONITORS_PER_ROW\" | bc -l`"

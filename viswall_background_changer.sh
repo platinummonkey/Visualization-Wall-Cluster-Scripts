@@ -33,7 +33,7 @@ fi
 
 for h in `cat $HOSTS_FILE`
 do
-  ssh $h /home/vizuser/viswall_tile_setbg.sh $TILES_BACKGROUND_DIRECTORY/$1/$h.jpg \&
+  ssh -fx $h /home/vizuser/viswall_tile_setbg.sh $TILES_BACKGROUND_DIRECTORY/$1/$h.jpg \&
   echo "Background for $h set"
 done
 echo "Done"
