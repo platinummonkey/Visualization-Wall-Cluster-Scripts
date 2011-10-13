@@ -53,6 +53,7 @@ def sortAppID(d):
 		dnew[int(k)] = v
 	dlist = dnew.items()
 	dlist.sort(reverse=True)
+	print "dlist: " + repr(dlist)
 	return dlist
 	
 
@@ -80,16 +81,34 @@ class Scripter:
 	def __init__ (self):
 		# System level configuration variables
 		self.sageProxy = xmlrpclib.ServerProxy("http://%s:%s" % (SAGE_PROXY_SERVER, SAGE_PROXY_PORT+3))
+		self.lastAppID = None
 
 	def imageviewer(self, d):
 		#d.filename_ file name
                 
 		iv = self.sageProxy.executeApp('imageviewer', "default", (0,0), False, False, d.filename_)
+		time.sleep(1)
+		iv = self.sageProxy.getAppStatus()
 		ivl = sortAppID(iv)
-		ivv = ivl[0] # latest appID
-		#if DEBUG: print "d:", repr(dir(d))
-		d.app_ = ivv[1][0]
-		d.winID_ = ivv[0]
+		ivv = ivl[0] # latest appID we think
+		print "I THINK THE APPID IS: " + str(ivv[0])
+		if self.lastAppID is None:
+			self.lastAppID = ivv[0]
+			print "No lastAppID found: setting to: " + str(ivv[0])
+		else:
+			self.lastAppID += 1
+		print "self.lastAppID = " + str(self.lastAppID)
+		#if ivv[0] == self.lastAppID:
+		#	# likely not right
+		#	self.lastAppID = ivv[0]+1
+		#	#if DEBUG: print "d:", repr(dir(d))
+		#	d.app_ = 'mplayer'
+		#	d.winID_ = self.lastAppID
+		#else:
+		# appID seems right
+		d.app_ = 'imageviewer'
+		d.winID_ = self.lastAppID
+		#self.lastAppID = ivv[0]
 		if DEBUG: print "Final WinID:", ivv[0]
 		self.moveWindow(d)
 		return
@@ -97,10 +116,18 @@ class Scripter:
 	def mplayer(self, d):
 		iv = self.sageProxy.executeApp('mplayer', "default", (0,0), False, False, d.filename_)
 		ivl = sortAppID(iv)
-		ivv = ivl[0] # latest appID
-		#if DEBUG: print "d:", repr(dir(d))
-		d.app_ = ivv[1][0]
-		d.winID_ = ivv[0]
+		ivv = ivl[0] # latest appID we think
+		if ivv[0] == self.lastAppID:
+			# likely not right
+			self.lastAppID = ivv[0]+1
+			#if DEBUG: print "d:", repr(dir(d))
+			d.app_ = 'mplayer'
+			d.winID_ = self.lastAppID
+		else:
+			# appID seems right
+			d.app_ = ivv[1][0]
+			d.winID_ = ivv[0]
+			self.lastAppID = ivv[0]
 		if DEBUG: print "Final WinID:", ivv[0]
 		self.moveWindow(d)
 		return
@@ -125,7 +152,14 @@ class Scripter:
 		if DEBUG: print "Hiding window", repr(d.winID_)
 		self.sageProxy.resizeWindow(d.winID_, 0, 1, 0, 1)
 		return
-		
+	
+	def hideAllWindows(self,d):
+		if DEBUG: print "Hiding ALL Windows!"
+		for o in d:
+			self.hideWindow(o)
+			time.sleep(0.25)
+		return
+	
 	def showWindow(self, d):
 		if DEBUG: print "Showing window", repr(d.winID_)
 		self.sageProxy.bringToFront(d.winID_)
@@ -136,5 +170,4 @@ class Scripter:
 	def killSageApp(self, d):
 		if DEBUG: print "Killing window", repr(d.winID_)
 		self.sageProxy.closeApp(d.winID_)
-		self.sageProxy
 		return
